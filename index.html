@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生姜密语 | 登录系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .security-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        .security-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .security-icon {
+            color: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+            margin-top: 40px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .security-shield {
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 100px;
+            height: 100px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 2.5rem;
+            transform: rotate(20deg);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+        
+        .header {
+            background: linear-gradient(to right, #1a2a6c, #b21f1f);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><rect fill="rgba(255,255,255,0.1)" x="0" y="0" width="100" height="100"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+            position: relative;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .login-section, .message-section {
+            transition: all 0.5s ease;
+        }
+        
+        .message-section {
+            display: none;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            border-color: #1a2a6c;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(26, 42, 108, 0.2);
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 40px;
+            color: #777;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(to right, #1a2a6c, #b21f1f);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(26, 42, 108, 0.3);
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .logout-btn {
+            background: linear-gradient(to right, #d32f2f, #b71c1c);
+            margin-top: 15px;
+        }
+        
+        .message-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            position: relative;
+            border-left: 5px solid #1a2a6c;
+            border-right: 5px solid #b21f1f;
+            background: linear-gradient(to right, white 95%, #f8f8f8);
+        }
+        
+        .message-card h3 {
+            color: #1a2a6c;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            text-align: center;
+        }
+        
+        .message-content {
+            line-height: 1.7;
+            color: #444;
+            font-size: 1.1rem;
+            background: rgba(245, 245, 245, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+        
+        .signature {
+            text-align: right;
+            margin-top: 20px;
+            font-style: italic;
+            color: #b21f1f;
+            font-weight: 500;
+        }
+        
+        .error-message {
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 15px;
+            font-weight: 500;
+            display: none;
+            background: rgba(211, 47, 47, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+        
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-right: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border: 3px solid white;
+        }
+        
+        .user-details h2 {
+            color: #333;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        
+        .user-details p {
+            color: #666;
+            text-align: center;
+        }
+        
+        .security-features {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(245, 245, 245, 0.8);
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+        
+        .security-features h4 {
+            color: #1a2a6c;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .features-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .feature {
+            background: rgba(26, 42, 108, 0.1);
+            color: #1a2a6c;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .attempts-counter {
+            text-align: center;
+            margin-top: 15px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .session-timer {
+            text-align: center;
+            margin-top: 10px;
+            color: #1a2a6c;
+            font-weight: 500;
+        }
+        
+        .agreement-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(245, 245, 245, 0.8);
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+        
+        .agreement-content {
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .agreement-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .account-selector {
+            margin-bottom: 20px;
+        }
+        
+        .account-selector label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .account-selector select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+        }
+        
+        .role-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .superadmin-badge {
+            background: linear-gradient(to right, #ff9800, #f57c00);
+            color: white;
+        }
+        
+        .admin-badge {
+            background: linear-gradient(to right, #2196F3, #1976D2);
+            color: white;
+        }
+        
+        .user-badge {
+            background: linear-gradient(to right, #4CAF50, #388E3C);
+            color: white;
+        }
+        
+        @media (max-width: 500px) {
+            .container {
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+            
+            .security-shield {
+                width: 70px;
+                height: 70px;
+                font-size: 2rem;
+                top: -20px;
+                right: -20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="security-header">
+        <div class="security-status">
+            <i class="fas fa-shield-alt security-icon"></i>
+            <span>安全系统已启用</span>
+        </div>
+        <div class="security-info">
+            <i class="fas fa-lock"></i> 安全连接 | 加密存储
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="security-shield">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        
+        <div class="header">
+            <h1><i class="fas fa-lock"></i> 生姜安全密语</h1>
+            <p>生姜的专属留言，不安全可靠</p>
+        </div>
+        
+        <div class="content">
+            <!-- 登录区域 -->
+            <div class="login-section" id="loginSection">
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user"></i> 用户名</label>
+                    <i class="fas fa-user input-icon"></i>
+                    <input type="text" id="username" placeholder="输入用户名" autocomplete="username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-key"></i> 密码</label>
+                    <i class="fas fa-key input-icon"></i>
+                    <input type="password" id="password" placeholder="输入密码" autocomplete="current-password">
+                </div>
+                
+                <div class="agreement-container">
+                    <div class="agreement-content">
+                        <h4>保密协议</h4>
+                        <p>本系统包含高度机密和个人化信息。在访问本系统前，您必须同意以下条款：</p>
+                        <ol>
+                            <li>您承诺对所看到的所有内容严格保密，不得以任何形式（口头、书面、电子或其他方式）向任何第三方透露。</li>
+                            <li>您理解并同意，未经作者（生姜）明确书面许可，私自传播、分享或泄露系统内任何信息将构成严重违约行为。</li>
+                            <li>如您发现任何安全漏洞或未授权访问，应立即通过官方渠道报告给作者（生姜）。</li>
+                            <li>违反本协议可能导致法律诉讼，您将承担由此产生的一切法律责任和经济赔偿(真）。</li>
+                            <li>如需分享任何内容，必须事先获得作者（生姜）的书面同意。</li>
+                        </ol>
+                        <p>本协议自您勾选同意之日起生效，并在您使用本系统期间持续有效。</p>
+                    </div>
+                    <div class="agreement-checkbox">
+                        <input type="checkbox" id="agreeCheckbox">
+                        <label for="agreeCheckbox">我已阅读并非常同意上述保密协议并发誓🤫</label>
+                    </div>
+                </div>
+                
+                <button class="btn" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> 安全登录
+                </button>
+                
+                <div class="error-message" id="errorMessage">
+                    <i class="fas fa-exclamation-triangle"></i> 用户名或密码错误，请重试
+                </div>
+                
+                <div class="attempts-counter" id="attemptsCounter">
+                    剩余尝试次数: <span id="attemptsLeft">5</span>
+                </div>
+                
+                <div class="security-features">
+                    <h4><i class="fas fa-shield-alt"></i> 安全保护机制</h4>
+                    <div class="features-list">
+                        <div class="feature">登录限制</div>
+                        <div class="feature">会话超时</div>
+                        <div class="feature">输入过滤</div>
+                        <div class="feature">加密存储</div>
+                        <div class="feature">XSS防护</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 留言区域 -->
+            <div class="message-section" id="messageSection">
+                <div class="user-info">
+                    <div class="avatar" id="userAvatar">U</div>
+                    <div class="user-details">
+                        <h2 id="userName">用户名 <span id="userRole" class="role-badge">角色</span></h2>
+                        <p>生姜的专属留言</p>
+                    </div>
+                </div>
+                
+                <div class="account-selector" id="accountSelector" style="display: none;">
+                    <label for="selectAccount"><i class="fas fa-users"></i> 选择查看账户</label>
+                    <select id="selectAccount">
+                        <option value="">-- 请选择账户 --</option>
+                    </select>
+                </div>
+                
+                <div class="message-card">
+                    <div class="heart-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3><i class="fas fa-envelope"></i> 给你的话</h3>
+                    <div class="message-content" id="messageContent">
+                        加载中...
+                    </div>
+                    <div class="signature">
+                        <p>—— 生姜</p>
+                    </div>
+                </div>
+                
+                <div class="session-timer" id="sessionTimer">
+                    <i class="fas fa-clock"></i> 会话将在 <span id="timeLeft">05:00</span> 后自动结束
+                </div>
+                
+                <button class="btn logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> 安全退出
+                </button>
+                
+                <div class="security-features">
+                    <h4><i class="fas fa-user-shield"></i> 当前安全状态</h4>
+                    <div class="features-list">
+                        <div class="feature">会话加密</div>
+                        <div class="feature">本地存储保护</div>
+                        <div class="feature">自动超时</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 账户系统（包含角色和权限）
+        const accounts = {
+            ginger: {
+                password: 'VIP_648648J',
+                name: 'Ginger',
+                role: 'superadmin',
+                message: "亲爱的Ginger，您是作者，作为超级管理员，您拥有最高权限。感谢您对系统的信任和支持。请确保所有信息的安全，并监督管理员的工作。一定要非常疯狂，分裂出第二人格，那咋了？那咋了？我疯了，哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈。",
+                avatarText: 'G'
+            },
+            eraser: {
+                password: 'eraser54188',
+                name: 'Eraser',
+                role: 'admin',
+                message: "乐子😁Eraser，天天不把那个个橡皮漫画给我，六六六，你要给到什么时候，我艹，亏本王还给你管理员。之前我给你QQ号，结果你说你只有微信。现在我有微信，你告诉我你手机没有，你不会拿你M的吗？乐子一个。念在旧日的恩情，虽然你天天暴打我，而且学习很好，但我现在今非昔比了。孩子，666，我平均分96，在班里排第五，演都不演了，直接🌚，橡皮本王非常想念你。666之前你告诉我，你连微信都没有，我直接S了😂，现在我微信被封了，你让我怎么加？，我艹。我劝你赶紧去注册一个QQ，不会某些学习非常好的橡皮，连QQ注册都不会吧？，666老张他都有QQ，加本王Q号：2448974355，不然我让别人走你，然后把你户开了😏😏😏，对了，你看了生姜小说吗？，🤔，没看我肘死你",
+                avatarText: 'E'
+            },
+            jiayu: {
+                password: 'JiaYu123',
+                name: '甲鱼',
+                role: 'admin',
+                message: "甲鱼，本姜给了你管理员，就是给你看一下，本王给谁留了言。生姜非常在意的人不止你一个，还有很多个，你可以自己看看，如傻橡皮。你性格开朗，学习很好，是班长，是大队长，是学校有名的人物，连校长也是，善于帮助同学。从我第一天转学过来，你就你过来亲近 me，我也很喜欢你。实话实说吧，我本来是想借助你的权威攀个关系的😝😄😅，并不打算成为真正的朋友，结果就是真成好朋友了。我知道你学习很好，善于帮助同学，但你有亿个缺点🌚，94你会强迫他人🙄，举个例子🌰：我真不想坐前面🙁，因为本人虽然有时开朗，但生姜是双重人格，就开始受苦了，😭😭😭，想都不敢想，在舞台上我腿都不敢动😬，虽然最后生姜后面觉得坐前面也没什么，但希望你能改正这个缺点。你就多学怎么用手机，现在是科技时代，你连手机都不会用，学习能力很强，我相信你一定能很快学进去的，现在不学，长大就很难学了。其实做网站很简单，你只需要去网上搜教程，或者用AI自己整点代码就行了，😉，我这个网站没啥高级的，就是一个只有前端在本地的网站，连后端的服务器都没有，一点安全性都没有，你用一个文本查看器就能看见这个网站全部的代码，连密码都出来了。好了，想不出来了🤫😀",
+                avatarText: '甲'
+            },
+            song: {
+                password: 'Song648',
+                name: '宋哥',
+                role: 'admin',
+                message: "宋哥，你靠着金钱实力，成功获得了生姜给你的管理，666 你上次说请我20块钱，你都没给。最近本王资金有点紧张，准备做一个聊天室，你能给我资助100块钱充一个云服务器吗(๑>◡<๑)💰✌️😀🤫，或者你不想充，直接买一个服务器吧，最便宜的也就一千八百😂，好了，想不出来了，记得V我 648。",
+                avatarText: '宋'
+            },
+            laozhang: {
+                password: 'Liao12345',
+                name: '老张',
+                role: 'user',
+                message: "老张，感谢您使用本系统。你每天送信，辛苦了，本王回来一定会请你去吃茄子的，你最近怎么不理我了？是不是觉得我是老色子了😟，🤔我相信你一定是这样的人😁，我给你发消息怎么不回？，好了，老张，我一定会请你吃茄子的👌。",
+                avatarText: '张'
+            },
+            gangbeng: {
+                password: 'GangBeng54188',
+                name: '钢蹦',
+                role: 'user',
+                message: "钢蹦，你不配当管理。本来是想给你网站管理员的，看你会编程，没想到我给你一个群聊管理员，你就给我乱搞🙄，乐子😂一个。在学校有那么点官职，什么早读小管家，什么大扫除总督，我直接给你走飞，就这么搞是吧😫，我告诉你：装逼我让你飞起来🌚🤣，肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击，建议你不要：要用MT管理器找到网站文件，然后用文本编辑器，然后看到密码，千万不要这样子😂😂😂，千万不要看生姜给自己写的。顺便再告诉你，那个爆炸代码得用Windows系统，你那个破苹果也想用这么高级的程序，我直接一周给你整废，肘击肘击肘击肘击肘击肘击击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击肘击。",
+                avatarText: '钢'
+            },
+            yu: {
+                password: 'yu12345',
+                name: '喻',
+                role: 'user',
+                message: "喻，感谢您成为我们的用户。本生姜暂时没有想对你说的话，敬请期待。",
+                avatarText: '喻'
+            },
+            dazuo: {
+                password: 'DaZuo666',
+                name: '大佐',
+                role: 'user',
+                message: "大佐，你肘击怎么学的？我也想学🤓🤪。本姜暂时没有其他的话要说，敬请期待 。",
+                avatarText: '佐'
+            },
+            jianguo: {
+                password: 'JianGuo',
+                name: '坚果',
+                role: 'admin',
+                message: "坚果，欢迎您成为管理员！由于甲鱼强迫他人，🤫所以我俩感情较好，你得学习一些武力，不然很容易被张夯一肘肘飞的，没啦。",
+                avatarText: '坚'
+            },
+            niuzuichun: {
+                password: 'NZC54188',
+                name: '牛嘴唇',
+                role: 'user',
+                message: "牛嘴唇，刘伯承，一、谐音类（牛/刘/流系列）牛油果晨刘不住（留不住）流汁橙（刘梓晨谐音）牛轧糖刘一刀流星锤刘老根（调侃）流川枫（动漫梗）流水席牛魔王刘三姐刘姥姥流心蛋牛博士刘华强（玩梗） 刘皇叔（三国梗）晨之巨人牛战士（动画梗）  ",
+                avatarText: '牛'
+            }
+        };
+        
+        // 权限配置
+        const permissions = {
+            superadmin: ['superadmin', 'admin', 'user'],
+            admin: ['admin', 'user'],
+            user: ['user']
+        };
+        
+        // 安全配置
+        const securityConfig = {
+            maxAttempts: 5,
+            sessionTimeout: 5 * 60 * 1000, // 5分钟
+            lockoutTime: 2 * 60 * 1000 // 2分钟锁定
+        };
+        
+        // DOM元素
+        const loginSection = document.getElementById('loginSection');
+        const messageSection = document.getElementById('messageSection');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const userName = document.getElementById('userName');
+        const userAvatar = document.getElementById('userAvatar');
+        const userRole = document.getElementById('userRole');
+        const messageContent = document.getElementById('messageContent');
+        const attemptsLeft = document.getElementById('attemptsLeft');
+        const timeLeft = document.getElementById('timeLeft');
+        const sessionTimer = document.getElementById('sessionTimer');
+        const accountSelector = document.getElementById('accountSelector');
+        const selectAccount = document.getElementById('selectAccount');
+        const agreeCheckbox = document.getElementById('agreeCheckbox');
+        
+        // 安全状态
+        let loginAttempts = securityConfig.maxAttempts;
+        let sessionTimerInterval;
+        let lockoutTimeout;
+        let currentUser = null;
+        
+        // 初始化
+        function init() {
+            updateAttemptsCounter();
+            checkLogin();
+            addEventListeners();
+        }
+        
+        // 添加事件监听
+        function addEventListeners() {
+            loginBtn.addEventListener('click', handleLogin);
+            logoutBtn.addEventListener('click', handleLogout);
+            selectAccount.addEventListener('change', handleAccountSelect);
+            
+            // 输入过滤
+            usernameInput.addEventListener('input', sanitizeInput);
+            passwordInput.addEventListener('input', sanitizeInput);
+        }
+        
+        // 输入清理
+        function sanitizeInput(e) {
+            // 移除潜在的恶意字符
+            e.target.value = e.target.value.replace(/[<>"'`]/g, '');
+        }
+        
+        // 处理登录
+        function handleLogin() {
+            if (loginAttempts <= 0) {
+                showError("账户已锁定，请稍后再试");
+                return;
+            }
+            
+            if (!agreeCheckbox.checked) {
+                showError("请先同意保密协议");
+                return;
+            }
+            
+            const username = usernameInput.value.trim().toLowerCase();
+            const password = passwordInput.value;
+            
+            if (!username || !password) {
+                showError("请输入用户名和密码");
+                return;
+            }
+            
+            // 查找账户
+            let account = null;
+            if (accounts[username]) {
+                account = accounts[username];
+            } else {
+                // 检查中文用户名
+                for (const key in accounts) {
+                    if (accounts[key].name === username) {
+                        account = accounts[key];
+                        break;
+                    }
+                }
+            }
+            
+            if (account && account.password === password) {
+                // 登录成功
+                loginSuccess(account);
+            } else {
+                // 登录失败
+                loginAttempts--;
+                updateAttemptsCounter();
+                
+                if (loginAttempts <= 0) {
+                    lockAccount();
+                } else {
+                    showError(`用户名或密码错误，剩余尝试次数: ${loginAttempts}`);
+                }
+            }
+        }
+        
+        // 登录成功处理
+        function loginSuccess(account) {
+            // 重置尝试次数
+            loginAttempts = securityConfig.maxAttempts;
+            updateAttemptsCounter();
+            
+            // 存储登录状态
+            sessionStorage.setItem('loggedInUser', account.name);
+            sessionStorage.setItem('loginTime', Date.now());
+            sessionStorage.setItem('userRole', account.role);
+            
+            currentUser = account;
+            showMessageForUser(account.name);
+            startSessionTimer();
+        }
+        
+        // 显示用户专属留言
+        function showMessageForUser(username) {
+            const account = findAccountByName(username);
+            if (account) {
+                userName.textContent = account.name;
+                userAvatar.textContent = account.avatarText;
+                
+                // 设置角色徽章
+                userRole.textContent = getRoleName(account.role);
+                userRole.className = 'role-badge ' + account.role + '-badge';
+                
+                // 安全显示消息
+                messageContent.textContent = account.message;
+                
+                // 随机生成头像背景色
+                const colors = ['#1a2a6c', '#b21f1f', '#4caf50', '#ff9800', '#9c27b0'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                userAvatar.style.background = `linear-gradient(135deg, ${randomColor} 0%, ${adjustColor(randomColor, 20)} 100%)`;
+                
+                // 显示账户选择器（管理员以上）
+                if (account.role !== 'user') {
+                    accountSelector.style.display = 'block';
+                    populateAccountSelector(account);
+                } else {
+                    accountSelector.style.display = 'none';
+                }
+                
+                loginSection.style.display = 'none';
+                messageSection.style.display = 'block';
+            }
+        }
+        
+        // 填充账户选择器
+        function populateAccountSelector(currentAccount) {
+            selectAccount.innerHTML = '<option value="">-- 请选择账户 --</option>';
+            
+            // 获取当前用户有权查看的角色
+            const allowedRoles = permissions[currentAccount.role];
+            
+            // 添加可查看的账户
+            for (const key in accounts) {
+                const account = accounts[key];
+                
+                // 排除当前用户自己
+                if (account.name === currentAccount.name) continue;
+                
+                // 检查权限
+                if (allowedRoles.includes(account.role)) {
+                    const option = document.createElement('option');
+                    option.value = account.name;
+                    option.textContent = `${account.name} (${getRoleName(account.role)})`;
+                    selectAccount.appendChild(option);
+                }
+            }
+        }
+        
+        // 处理账户选择
+        function handleAccountSelect() {
+            const selectedAccount = selectAccount.value;
+            if (selectedAccount) {
+                showMessageForUser(selectedAccount);
+            }
+        }
+        
+        // 查找账户
+        function findAccountByName(name) {
+            for (const key in accounts) {
+                if (accounts[key].name === name) {
+                    return accounts[key];
+                }
+            }
+            return null;
+        }
+        
+        // 获取角色名称
+        function getRoleName(role) {
+            switch (role) {
+                case 'superadmin': return '超级管理员';
+                case 'admin': return '管理员';
+                case 'user': return '用户';
+                default: return role;
+            }
+        }
+        
+        // 处理退出
+        function handleLogout() {
+            sessionStorage.removeItem('loggedInUser');
+            sessionStorage.removeItem('loginTime');
+            sessionStorage.removeItem('userRole');
+            clearInterval(sessionTimerInterval);
+            
+            loginSection.style.display = 'block';
+            messageSection.style.display = 'none';
+            usernameInput.value = '';
+            passwordInput.value = '';
+            agreeCheckbox.checked = false;
+            
+            // 重置尝试次数
+            loginAttempts = securityConfig.maxAttempts;
+            updateAttemptsCounter();
+        }
+        
+        // 检查登录状态
+        function checkLogin() {
+            const loggedInUser = sessionStorage.getItem('loggedInUser');
+            const loginTime = parseInt(sessionStorage.getItem('loginTime'));
+            const userRole = sessionStorage.getItem('userRole');
+            
+            if (loggedInUser) {
+                // 检查会话是否过期
+                const currentTime = Date.now();
+                const elapsedTime = currentTime - loginTime;
+                
+                if (elapsedTime < securityConfig.sessionTimeout) {
+                    currentUser = {
+                        name: loggedInUser,
+                        role: userRole
+                    };
+                    showMessageForUser(loggedInUser);
+                    startSessionTimer(securityConfig.sessionTimeout - elapsedTime);
+                } else {
+                    sessionStorage.removeItem('loggedInUser');
+                    sessionStorage.removeItem('loginTime');
+                    sessionStorage.removeItem('userRole');
+                }
+            }
+        }
+        
+        // 开始会话计时器
+        function startSessionTimer(timeRemaining = securityConfig.sessionTimeout) {
+            clearInterval(sessionTimerInterval);
+            
+            let timeLeftMs = timeRemaining;
+            
+            sessionTimerInterval = setInterval(() => {
+                timeLeftMs -= 1000;
+                
+                if (timeLeftMs <= 0) {
+                    clearInterval(sessionTimerInterval);
+                    handleLogout();
+                    return;
+                }
+                
+                const minutes = Math.floor(timeLeftMs / 60000);
+                const seconds = Math.floor((timeLeftMs % 60000) / 1000);
+                
+                timeLeft.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+        
+        // 锁定账户
+        function lockAccount() {
+            showError(`账户已锁定，请等待 ${securityConfig.lockoutTime/60000} 分钟`);
+            loginBtn.disabled = true;
+            
+            lockoutTimeout = setTimeout(() => {
+                loginAttempts = securityConfig.maxAttempts;
+                updateAttemptsCounter();
+                loginBtn.disabled = false;
+                errorMessage.style.display = 'none';
+            }, securityConfig.lockoutTime);
+        }
+        
+        // 更新尝试次数显示
+        function updateAttemptsCounter() {
+            attemptsLeft.textContent = loginAttempts;
+            
+            if (loginAttempts <= 2) {
+                attemptsLeft.parentElement.style.color = '#d32f2f';
+                attemptsLeft.parentElement.style.fontWeight = 'bold';
+            } else {
+                attemptsLeft.parentElement.style.color = '#666';
+                attemptsLeft.parentElement.style.fontWeight = 'normal';
+            }
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            errorMessage.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+            errorMessage.style.display = 'block';
+            
+            // 5秒后隐藏错误信息
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+        
+        // 辅助函数：调整颜色亮度
+        function adjustColor(color, percent) {
+            const num = parseInt(color.replace("#",""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) + amt;
+            const G = (num >> 8 & 0x00FF) + amt;
+            const B = (num & 0x0000FF) + amt;
+            
+            return "#" + (
+                0x1000000 +
+                (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+                (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+                (B < 255 ? (B < 1 ? 0 : B) : 255)
+            ).toString(16).slice(1);
+        }
+        
+        // 初始化应用
+        init();
+    </script>
+</body>
+</html>
