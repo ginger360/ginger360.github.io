@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生姜网站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: #2c3e50;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 18px 30px;
+            margin: 15px 0;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:nth-child(3) {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+        
+        .btn:nth-child(3):hover {
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
+        }
+        
+        .footer {
+            margin-top: 50px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .author {
+            margin-bottom: 10px;
+        }
+        
+        .studio {
+            font-style: italic;
+        }
+        
+        .agreement {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: #95a5a6;
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 40px 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                padding: 15px 25px;
+                font-size: 1rem;
+            }
+        }
+        
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 15% auto;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .modal-content p {
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .modal-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .buy-basic {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .buy-password {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .go-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 输入框样式 */
+        .input-group {
+            margin: 20px 0;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* 隐蔽按钮样式 */
+        .hidden-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: transparent;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .hidden-btn:hover {
+            color: rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>生姜网站</h1>
+        
+        <button class="btn" onclick="navigateTo('aHR0cHM6Ly93d3cuZG91YmFvLmNvbS9zaGFyZS9jb2RlL2E3YTE3MGJiZTJkMWM4ZTg_aXNfY29kZT0x')">生姜密语</button>
+        <button class="btn" onclick="showModal()">鼠鼠开容器模拟器</button>
+        
+        <div class="agreement">
+            <p>使用本网站前，请您仔细阅读并同意相关用户协议。</p>
+            <p>本网站内容仅供学习和娱乐使用，请勿用于商业目的。</p>
+        </div>
+        
+        <div class="footer">
+            <div class="author">作者：生姜</div>
+            <div class="studio">your mum工作室出版</div>
+        </div>
+    </div>
+    
+    <!-- 主弹窗 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2>鼠鼠开容器模拟器</h2>
+            <p>本网站内部需要密码才能体验完整高爆率功能，可向网站作者生姜花费5元购买密码。网站请先支付1元可体验基础版。</p>
+            
+            <button class="modal-btn buy-basic" onclick="showCardModal()">购买基础版（1元）</button>
+            <button class="modal-btn buy-password">购买密码（5元）</button>
+            <button class="modal-btn go-back" onclick="closeModal()">返回</button>
+            
+            <!-- 隐蔽的免费体验按钮 -->
+            <button class="hidden-btn" onclick="showFreeModal()">免费</button>
+        </div>
+    </div>
+    
+    <!-- 卡密输入弹窗 -->
+    <div id="cardModal" class="modal">
+        <div class="modal-content">
+            <h2>基础版卡密验证</h2>
+            <p>请输入您购买的卡密以体验基础版功能：</p>
+            
+            <div class="input-group">
+                <label for="cardCode">卡密：</label>
+                <input type="text" id="cardCode" placeholder="请输入卡密" maxlength="16">
+            </div>
+            
+            <button class="modal-btn buy-basic" onclick="verifyCardCode()">验证卡密</button>
+            <button class="modal-btn go-back" onclick="closeCardModal()">返回</button>
+        </div>
+    </div>
+    
+    <!-- 免费体验密码弹窗 -->
+    <div id="freeModal" class="modal">
+        <div class="modal-content">
+            <h2>免费体验验证</h2>
+            <p>请输入免费体验密码：</p>
+            
+            <div class="input-group">
+                <label for="freePassword">密码：</label>
+                <input type="text" id="freePassword" placeholder="请输入密码">
+            </div>
+            
+            <button class="modal-btn buy-basic" onclick="verifyFreePassword()">验证密码</button>
+            <button class="modal-btn go-back" onclick="closeFreeModal()">返回</button>
+        </div>
+    </div>
+    
+    <script>
+        // 安全的Base64编码解码函数（支持URL安全格式）
+        function decodeBase64(str) {
+            try {
+                // 处理URL安全的Base64编码（将-和_转换为+和/）
+                const urlSafeStr = str.replace(/-/g, '+').replace(/_/g, '/');
+                // 确保字符串是有效的Base64格式
+                const paddedStr = urlSafeStr.padEnd(urlSafeStr.length + (4 - urlSafeStr.length % 4) % 4, '=');
+                return decodeURIComponent(atob(paddedStr).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+            } catch (e) {
+                console.error('Base64解码错误:', e);
+                // 提供一个默认URL作为 fallback
+                return 'https://www.baidu.com';
+            }
+        }
+        
+        // 导航函数
+        function navigateTo(encodedUrl) {
+            const url = decodeBase64(encodedUrl);
+            window.open(url, '_blank');
+        }
+        
+        // 随机生成10个卡密
+        const validCardCodes = [
+            'SJDQ-2024-001',
+            'SJDQ-2024-002',
+            'SJDQ-2024-003',
+            'SJDQ-2024-004',
+            'SJDQ-2024-005',
+            'SJDQ-2024-006',
+            'SJDQ-2024-007',
+            'SJDQ-2024-008',
+            'SJDQ-2024-009',
+            'SJDQ-2024-010'
+        ];
+        
+        // 主弹窗控制
+        function showModal() {
+            document.getElementById('modal').style.display = 'block';
+        }
+        
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+        
+        // 卡密弹窗控制
+        function showCardModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('cardModal').style.display = 'block';
+        }
+        
+        function closeCardModal() {
+            document.getElementById('cardModal').style.display = 'none';
+            document.getElementById('modal').style.display = 'block';
+        }
+        
+        // 免费体验弹窗控制
+        function showFreeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('freeModal').style.display = 'block';
+        }
+        
+        function closeFreeModal() {
+            document.getElementById('freeModal').style.display = 'none';
+            document.getElementById('modal').style.display = 'block';
+        }
+        
+        // 卡密验证
+        function verifyCardCode() {
+            const inputCode = document.getElementById('cardCode').value.trim();
+            if (validCardCodes.includes(inputCode)) {
+                alert('卡密验证成功！正在进入基础版...');
+                navigateTo('aHR0cHM6Ly93d3cuYWNnaWNlLmNvbS9zanovdi9tbnFfc3M');
+                closeCardModal();
+            } else {
+                alert('卡密验证失败！请检查卡密是否正确。');
+            }
+        }
+        
+        // 免费体验密码验证
+        function verifyFreePassword() {
+            const inputPassword = document.getElementById('freePassword').value.trim();
+            if (inputPassword === '生姜NB666') {
+                alert('密码验证成功！正在进入免费体验版...');
+                navigateTo('aHR0cHM6Ly93d3cuYWNnaWNlLmNvbS9zanovdi9tbnFfc3M');
+                closeFreeModal();
+            } else {
+                alert('密码验证失败！请检查密码是否正确。');
+            }
+        }
+        
+        // 点击弹窗外部关闭
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                    // 恢复主弹窗显示
+                    if (modal.id !== 'modal') {
+                        document.getElementById('modal').style.display = 'block';
+                    }
+                }
+            });
+        }
+        
+        // 按钮点击事件
+        document.addEventListener('DOMContentLoaded', function() {
+            // 购买密码按钮
+            document.querySelector('.buy-password').addEventListener('click', function() {
+                alert('感谢您的支持！请联系作者生姜支付5元以获取完整功能密码。');
+            });
+        });
+    </script>
+</body>
+</html>
